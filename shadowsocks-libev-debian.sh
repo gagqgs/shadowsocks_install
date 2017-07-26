@@ -12,6 +12,9 @@ export PATH
 # Current folder
 cur_dir=`pwd`
 
+libsodium_file="libsodium-1.0.13"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz"
+
 mbedtls_file="mbedtls-2.5.1"
 mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.5.1-gpl.tgz"
 
@@ -316,8 +319,24 @@ download_files(){
     cd ${cur_dir}
 
     download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
+    download "${libsodium_file}.tar.gz" "${libsodium_url}"
     download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
     download "/etc/init.d/shadowsocks" "${init_script_link}"
+}
+
+install_libsodium() {
+    if [ ! -f /usr/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
+        ./configure --prefix=/usr && make && make install
+        if [ $? -ne 0 ]; then
+            echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
+            exit 1
+        fi
+    else
+        echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
+    fi
 }
 
 install_mbedtls() {
@@ -361,6 +380,7 @@ EOF
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
+    install_libsodium
     install_mbedtls
 
     ldconfig
@@ -387,6 +407,7 @@ install_shadowsocks(){
 
     cd ${cur_dir}
     rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
+    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
     rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
 
     clear
