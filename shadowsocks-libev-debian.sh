@@ -324,21 +324,6 @@ download_files(){
     download "/etc/init.d/shadowsocks" "${init_script_link}"
 }
 
-install_libsodium() {
-    if [ ! -f /usr/lib/libsodium.a ]; then
-        cd ${cur_dir}
-        tar zxf ${libsodium_file}.tar.gz
-        cd ${libsodium_file}
-        ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
-            exit 1
-        fi
-    else
-        echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
-    fi
-}
-
 install_mbedtls() {
     if [ ! -f /usr/lib/libmbedtls.a ]; then
         cd ${cur_dir}
